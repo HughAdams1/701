@@ -4,13 +4,14 @@ Created on Tue Nov 17 11:59:42 2020
 
 @author: hugha
 """
+##################### upload the data ########################
+
 import numpy as np
 import pandas as pd
 import os
 
 path = "C:/Users/hugha/Documents/AI City MSc/intro to AI/CW/fer2013CW"
 
-#upload our student data
 file_name = os.path.join(path, "fer2013.csv" )
 df = pd.read_csv(file_name, na_values=['NA', '?'])
 
@@ -19,10 +20,12 @@ df = df.reindex(np.random.permutation(df.index))
 
 #drop the column Usage - don't know why its there or what it does
 df.drop('Usage', 1, inplace=True)
+print(df.columns)
+
 
 #an example of test and train or K-fold on ex2part1
 
-print(df.columns)
+
 
 #adding a new column for each pixel
 pixels_for_all_dpoints = []
@@ -39,26 +42,93 @@ for n in range(len(pixels_for_all_dpoints[0])):
     df.insert(1, 'pixel'+str(n), pixels_for_all_dpoints[:,n])
 
 print(df.columns)
-#df.insert(-1, 'pixel1', BofB[:,n])
+
 
 #don't need this since now we have all those pixel columns
 df.drop('pixels', 1, inplace=True)
+print(df.columns)
 
-#above here is all good, below eh
-
-print(len(df['pixels'][1].split(' ')))
-print(len(df['pixels']))
-print(len(pixels_for_all_dpoints[0]))
+#above here is all good
 
 ################ 1: what does the dataset look like? ############
 
 print(df.columns)
 print(df.shape)
-#gonna have to do some pre-processing to turn 'pixels' each into their own category
 print(df.size)
 
 #are there any null values in my dataset. Q: are these only define by NA values when you import
 print(df.isnull().any())
+
+
+#making a smaller dataframe of only 10 datapoints to save time when 
+#running code later on
+df_quick = df[0:10]
+
+print(df_quick.shape)
+print(df_quick.size)
+
+################### split the data #######################
+
+result = []
+for x in df_quick.columns:
+    if x != 'emotion':
+        result.append(x)
+
+X = df_quick[result].values
+y = df_quick['emotion'].values
+
+
+
+# how does Kfold work?
+#Kfold
+from sklearn.model_selection import KFold
+
+X_folds = []
+y_folds = []
+
+kf = KFold(4)
+
+fold = 1
+for train_index, validate_index in kf.split(X,y):
+    trainDF = pd.DataFrame(df_quick.iloc[train_index, :])
+    X_folds.append(trainDF)
+    validateDF = pd.DataFrame(df_quick.iloc[validate_index])
+    y_fold.append(validateDF)
+    print(f"Fold #{fold}, Training Size: {len(trainDF)}, Validation Size: {len(validateDF)}")
+    fold += 1
+
+####### this kfold chunk works #########
+
+
+
+
+
+
+
+
+
+
+
+################ get the fucking dimensions down ################
+
+# we want either Principal component analysis, or the nmf one
+
+from sklearn.decomposition import PCA
+
+pca = PCA(n_components=2)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ################ Perceptron ###################
 
